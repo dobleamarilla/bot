@@ -1,0 +1,28 @@
+{
+  "name": "bot",
+  "version": "1.0.0",
+  "description": "Telegram Bot",
+  "main": "main.js",
+  "scripts": {
+    "start": "tsc && node main.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dobleamarilla/bot.git"
+  },
+  "author": "Ezequiel",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/dobleamarilla/bot/issues"
+  },
+  "homepage": "https://github.com/dobleamarilla/bot#readme",
+  "devDependencies": {
+    "typescript": "^4.1.2"
+  },
+  "dependencies": {
+    "dotenv": "^8.2.0",
+    "mssql": "^6.2.3",
+    "node-telegram-bot-api": "^0.50.0",
+    "source-map-support": "^0.5.19"
+  }
+}
