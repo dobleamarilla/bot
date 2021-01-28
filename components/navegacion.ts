@@ -12,6 +12,7 @@ bot.onText(/\/start/, function onAudioText(msg: any) {
 bot.on('message' , async (msg: any)=> {
   try
   {
+    console.log(msg);
     if(msg.contact == undefined)
     {
       let sesion: loginObject = await userLogin(msg);

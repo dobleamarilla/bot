@@ -25,7 +25,7 @@ function opcionesVentasSupervisorasLista(sesion: loginObject, data: any)
   }
 }
 
-async function franquiciado_supervisora(sesion: loginObject)
+async function franquiciado_supervisora(sesion: loginObject):Promise<string>
 {
   var sql1 = ` DECLARE @codigoClienteGdt VARCHAR(50) = ${sesion.idUsuarioHit}
   IF EXISTS (SELECT * FROM ConstantsClient WHERE variable = 'userFranquicia' AND Valor = @codigoClienteGdt)
@@ -45,6 +45,7 @@ async function franquiciado_supervisora(sesion: loginObject)
     END`;
 
   var res1 = await recHit(sesion.database, sql1);
+  return res1[0].resultado;
 }
 
 /* DEVUELVE LAS TIENDAS DEL FRANQUICIADO */
@@ -56,11 +57,54 @@ async function cargarFranquiciado(sesion: loginObject, intervalo: string)
 }
 
 /* DEVUELVE LA LISTA DE SUPERVISORAS CON LOS DATOS DE VENTAS DEL INTERVALO */
-async function cargarSupervisoras(sesion: loginObject, intervalo: string)
+async function cargarSupervisoras(sesion: loginObject, intervalo: string, opts: any)
 {
-  var sql = "SELECT DISTINCT cc.Valor, de.NOM FROM ConstantsClient cc LEFT JOIN Dependentes de ON cc.Valor = de.CODI WHERE variable = 'SupervisoraCodi' AND Valor IS NOT NULL AND Valor != ''";
-  var res = await recHit(sesion.database, sql);
-  return res;
+  var sql = "SELECT DISTINCT cc.Valor AS idUsuarioHit, de.NOM AS nombre FROM ConstantsClient cc LEFT JOIN Dependentes de ON cc.Valor = de.CODI WHERE variable = 'SupervisoraCodi' AND Valor IS NOT NULL AND Valor != ''";
+  var supervisoras:supervisoraObject[] = await recHit(sesion.database, sql);
+  if(supervisoras.length > 0)
+  {
+    var info: menuObject[] = [
+      {
+        menus: [],
+        necesario: ['ANY'] 
+      }
+    ];
+    for(let i = 0; i < supervisoras.length; i++)
+    {
+      info[0].menus.push([ { text: `${supervisoras[i].nombre}  😃`, callback_data: JSON.stringify({accion: "ventaSuperv", idHit: supervisoras[i].idUsuarioHit, fecha: intervalo}) } ]);
+    }
+    let objEnviar =   {
+      reply_markup: {
+        inline_keyboard: getTeclado(sesion.tipoUsuario, info)      
+      }
+    }
+    bot.editMessageReplyMarkup(objEnviar.reply_markup, opts);
+  }
+  else
+  {
+    bot.editMessage(usaDiccionario('TEXTO_SIN_SUPERVISORAS', sesion.idioma), opts);
+  }
+}
+
+function opcionesVentasTest(sesion: loginObject)
+{
+  const menus: menuObject[] = [
+    {
+      menus: [ 
+        [ { text: 'JAJAJAJA', callback_data: JSON.stringify({accion: "menuHoy"}) } ], 
+        [ { text: usaDiccionario('MENU_AYER', sesion.idioma), callback_data: JSON.stringify({accion: "menuAyer"}) } ], 
+        [ { text: usaDiccionario('MENU_SEMANA_PASADA', sesion.idioma), callback_data: JSON.stringify({accion: "menuSemanaPasada"}) } ], 
+        [ { text: usaDiccionario('MENU_ANO_PASADO', sesion.idioma), callback_data: JSON.stringify({accion: "menuAñoPasado"}) } ] 
+      ],
+      necesario: ['ANY']
+    }
+  ];
+  console.log('BUENO:', getTeclado(sesion.tipoUsuario, menus));
+  return {
+    reply_markup: {
+      inline_keyboard: getTeclado(sesion.tipoUsuario, menus)      
+    }
+  }
 }
 
 bot.on('callback_query', async (msg) => {
@@ -78,36 +122,17 @@ bot.on('callback_query', async (msg) => {
         {
           var queSoy = await franquiciado_supervisora(sesion);
           
-          if(queSoy[0].resultado == 'FRANQUICIADO')
+          if(queSoy == 'FRANQUICIADO')
           {
             cargarFranquiciado(sesion, 'HOY');
           }
           else
           {
-            if(queSoy[0].resultado == 'SUPERVISORA')
+            if(queSoy == 'SUPERVISORA' || queSoy == 'NINGUNO')
             {
-              var supervisoras  = await cargarSupervisoras(sesion, 'HOY');
-              if(supervisoras.length > 0)
-              {
-                //----------------
-                var menus = [];
-                for(let i = 0; i < supervisoras.length; i++)
-                {
-
-                }
-                //------------
-              }
-              else
-              {
-                bot.editMessage(usaDiccionario('TEXTO_SIN_SUPERVISORAS', sesion.idioma), opts);
-              }
+              let objEnviar = await cargarSupervisoras(sesion, 'HOY', opts);
             }
-            else
-            {
-              console.log('Hola soy directamente de la bbdd: ', queSoy[0].resultado);
-            }
-          } 
-          //bot.editMessageReplyMarkup(opcionesVentasSupervisorasLista(sesion, ).reply_markup, opts);
+          }
         }
         else if(callbackData.accion == "menuAyer")
         {

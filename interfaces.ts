@@ -20,3 +20,9 @@ interface menuObject
     necesario: string[],
     exclusion?: any[]
 }
+
+interface supervisoraObject
+{
+    idUsuarioHit: number,
+    nombre: string
+}
