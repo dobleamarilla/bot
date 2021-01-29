@@ -8,7 +8,7 @@ bot.on('contact', async (msg: any)=>{
     {
         let phoneNumber     = msg.contact.phone_number;
         let idUsuario       = msg.from.id;
-        let sql             = `SELECT id AS codi FROM dependentesextes WHERE nom = 'TLF_MOBIL' AND valor = '${phoneNumber.substr(3)}';`;;
+        let sql             = `SELECT id AS codi FROM dependentesextes WHERE nom = 'TLF_MOBIL' AND valor = '${phoneNumber.substr(2)}';`;
         let idChat          = msg.chat.id;
         let sqlBucle        = 'SELECT Nom AS nombre, Db AS bbdd FROM Web_Empreses';
         let listaBbdd       = await recHit('hit', sqlBucle);
@@ -31,7 +31,7 @@ bot.on('contact', async (msg: any)=>{
                 */
                 let sql2         =   `
                                         DELETE FROM secretaria WHERE Usuario = '${codiUser}';
-                                        INSERT INTO secretaria (Id, lastConnect, empresa, usuario, Aux1, Aux2, Aux3, nombreBBDD) VALUES (newid(), getdate(), '${listaBbdd[i].bbdd}', '${codiUser}', '${idUsuario}', '${phoneNumber.substr(3)}', '${idChat}', '${listaBbdd[i].nombre}');
+                                        INSERT INTO secretaria (Id, lastConnect, empresa, usuario, Aux1, Aux2, Aux3, nombreBBDD) VALUES (newid(), getdate(), '${listaBbdd[i].bbdd}', '${codiUser}', '${idUsuario}', '${phoneNumber.substr(2)}', '${idChat}', '${listaBbdd[i].nombre}');
                                     `;
                 await recHit('Hit', sql2);
                 userLogin(msg, 'registro');
