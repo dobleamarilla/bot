@@ -4,6 +4,7 @@ require('./components/navegacion');
 require('./components/registro');
 require('./components/login');
 require('./components/menu_ventas');
+require('./components/fichar');
 // const conexion = require('./components/conexion/conexion');
 
 // conexion.recHit('Fac_Tena', 'select top 5 * from [V_Venut_2019-10] WHERE Botiga = 819').then(data=>{
